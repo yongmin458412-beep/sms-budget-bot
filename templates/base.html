@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ko" class="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}SMS 가계부{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class' }</script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; }
+    input, select { color-scheme: dark; }
+  </style>
+  {% block head %}{% endblock %}
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+  <nav class="bg-slate-900 border-b border-slate-800">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between flex-wrap gap-2">
+      <span class="text-lg font-semibold">💰 SMS 가계부</span>
+      <div class="flex gap-1 text-sm">
+        {% set _nav = [('dashboard','/','대시보드'),('calendar','/calendar','달력'),('transactions','/transactions','거래내역')] %}
+        {% for key, url, label in _nav %}
+        <a href="{{ url }}" class="px-3 py-1.5 rounded text-slate-300 hover:bg-slate-800 hover:text-slate-100 {% if nav==key %}bg-slate-800 text-slate-100{% endif %}">{{ label }}</a>
+        {% endfor %}
+        <a href="/logout" class="px-3 py-1.5 rounded text-red-400 hover:bg-red-900/30">로그아웃</a>
+      </div>
+    </div>
+  </nav>
+  <main class="max-w-6xl mx-auto px-4 py-6">
+    {% block content %}{% endblock %}
+  </main>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

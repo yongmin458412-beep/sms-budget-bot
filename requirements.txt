@@ -1,0 +1,10 @@
+python-telegram-bot>=20.7,<22
+fastapi>=0.110,<1.0
+uvicorn[standard]>=0.27,<1.0
+jinja2>=3.1
+aiosqlite>=0.19
+itsdangerous>=2.1
+python-multipart>=0.0.9
+python-dotenv>=1.0
+openpyxl>=3.1
+notion-client>=2.0

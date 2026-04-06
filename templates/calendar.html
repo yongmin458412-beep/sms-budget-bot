@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}달력 - SMS 가계부{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-2xl font-bold">{{ year }}년 {{ month }}월</h1>
+  <div class="flex gap-2">
+    <a href="/calendar?year={{ prev_year }}&month={{ prev_month }}" class="px-3 py-1.5 bg-slate-800 rounded hover:bg-slate-700 text-sm">◀ 이전달</a>
+    <a href="/calendar?year={{ next_year }}&month={{ next_month }}" class="px-3 py-1.5 bg-slate-800 rounded hover:bg-slate-700 text-sm">다음달 ▶</a>
+  </div>
+</div>
+
+<div class="bg-slate-900 border border-slate-800 rounded-xl p-4 overflow-x-auto">
+  <table class="w-full text-sm">
+    <thead>
+      <tr>
+        {% for d in ['월','화','수','목','금','토','일'] %}
+        <th class="py-2 text-center text-slate-400 font-medium {% if d == '토' %}text-blue-400{% elif d == '일' %}text-red-400{% endif %}">{{ d }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for week in weeks %}
+      <tr>
+        {% for day in week %}
+        <td class="border border-slate-800/50 p-1 align-top h-24 {% if day == 0 %}bg-slate-950{% endif %}">
+          {% if day > 0 %}
+          <div class="text-xs text-slate-400 mb-1">{{ day }}</div>
+          {% set dd = "%02d" % day %}
+          {% if dd in cal_data %}
+          <a href="/transactions?start={{ year }}-{{ '%02d' % month }}-{{ dd }}&end={{ year }}-{{ '%02d' % month }}-{{ dd }}" class="block">
+            {% if cal_data[dd].income > 0 %}
+            <div class="text-xs text-green-400 truncate">+{{ "{:,}".format(cal_data[dd].income) }}</div>
+            {% endif %}
+            {% if cal_data[dd].expense > 0 %}
+            <div class="text-xs text-red-400 truncate">-{{ "{:,}".format(cal_data[dd].expense) }}</div>
+            {% endif %}
+          </a>
+          {% endif %}
+          {% endif %}
+        </td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- 월 합계 -->
+<div class="mt-4 grid grid-cols-3 gap-4">
+  <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 text-center">
+    <div class="text-slate-400 text-sm">입금</div>
+    <div class="text-lg font-bold text-green-400">{{ "{:,}".format(summary.income) }}원</div>
+  </div>
+  <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 text-center">
+    <div class="text-slate-400 text-sm">출금</div>
+    <div class="text-lg font-bold text-red-400">{{ "{:,}".format(summary.expense) }}원</div>
+  </div>
+  <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 text-center">
+    <div class="text-slate-400 text-sm">순이익</div>
+    <div class="text-lg font-bold {% if summary.net >= 0 %}text-blue-400{% else %}text-orange-400{% endif %}">
+      {% if summary.net >= 0 %}+{% endif %}{{ "{:,}".format(summary.net) }}원
+    </div>
+  </div>
+</div>
+{% endblock %}

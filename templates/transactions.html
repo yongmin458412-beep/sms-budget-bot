@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}거래내역 - SMS 가계부{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">거래내역</h1>
+
+<!-- 필터 -->
+<form method="get" action="/transactions" class="bg-slate-900 border border-slate-800 rounded-xl p-4 mb-6">
+  <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+    <div>
+      <label class="block text-xs text-slate-400 mb-1">시작일</label>
+      <input type="date" name="start" value="{{ start }}"
+             class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-sm" />
+    </div>
+    <div>
+      <label class="block text-xs text-slate-400 mb-1">종료일</label>
+      <input type="date" name="end" value="{{ end }}"
+             class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-sm" />
+    </div>
+    <div>
+      <label class="block text-xs text-slate-400 mb-1">구분</label>
+      <select name="type" class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-sm">
+        <option value="">전체</option>
+        <option value="입금" {% if filter_type=='입금' %}selected{% endif %}>입금</option>
+        <option value="출금" {% if filter_type=='출금' %}selected{% endif %}>출금</option>
+      </select>
+    </div>
+    <div>
+      <label class="block text-xs text-slate-400 mb-1">카테고리</label>
+      <select name="category" class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-sm">
+        <option value="">전체</option>
+        {% for c in categories %}
+        <option value="{{ c }}" {% if filter_cat==c %}selected{% endif %}>{{ c }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="flex items-end">
+      <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-1.5 rounded text-sm font-medium">검색</button>
+    </div>
+  </div>
+</form>
+
+<!-- 요약 -->
+<div class="grid grid-cols-3 gap-4 mb-4">
+  <div class="bg-slate-900 border border-slate-800 rounded-lg p-3 text-center">
+    <div class="text-xs text-slate-400">입금</div>
+    <div class="font-bold text-green-400">{{ "{:,}".format(total_income) }}원</div>
+  </div>
+  <div class="bg-slate-900 border border-slate-800 rounded-lg p-3 text-center">
+    <div class="text-xs text-slate-400">출금</div>
+    <div class="font-bold text-red-400">{{ "{:,}".format(total_expense) }}원</div>
+  </div>
+  <div class="bg-slate-900 border border-slate-800 rounded-lg p-3 text-center">
+    <div class="text-xs text-slate-400">합계</div>
+    <div class="font-bold">{{ "{:,}".format(total_income - total_expense) }}원</div>
+  </div>
+</div>
+
+<!-- 테이블 -->
+<div class="bg-slate-900 border border-slate-800 rounded-xl overflow-x-auto">
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="text-slate-400 border-b border-slate-800">
+        <th class="text-left py-2 px-3">날짜</th>
+        <th class="text-left py-2 px-3">시간</th>
+        <th class="text-left py-2 px-3">구분</th>
+        <th class="text-right py-2 px-3">금액</th>
+        <th class="text-left py-2 px-3">설명</th>
+        <th class="text-left py-2 px-3">은행</th>
+        <th class="text-right py-2 px-3">잔액</th>
+        <th class="text-left py-2 px-3">카테고리</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for tx in transactions %}
+      <tr class="border-b border-slate-800/50 hover:bg-slate-800/30">
+        <td class="py-2 px-3 text-slate-300">{{ tx.date }}</td>
+        <td class="py-2 px-3 text-slate-400">{{ tx.time or '-' }}</td>
+        <td class="py-2 px-3 {% if tx.type == '입금' %}text-green-400{% else %}text-red-400{% endif %}">{{ tx.type }}</td>
+        <td class="py-2 px-3 text-right {% if tx.type == '입금' %}text-green-400{% else %}text-red-400{% endif %}">{{ "{:,}".format(tx.amount) }}원</td>
+        <td class="py-2 px-3 text-slate-300">{{ tx.description or '-' }}</td>
+        <td class="py-2 px-3 text-slate-400">{{ tx.bank or '-' }}</td>
+        <td class="py-2 px-3 text-right text-slate-400">{% if tx.balance %}{{ "{:,}".format(tx.balance) }}원{% else %}-{% endif %}</td>
+        <td class="py-2 px-3 text-slate-400">{{ tx.category or '-' }}</td>
+      </tr>
+      {% endfor %}
+      {% if not transactions %}
+      <tr><td colspan="8" class="py-8 text-center text-slate-500">거래 내역이 없습니다</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+<div class="mt-2 text-right text-xs text-slate-500">총 {{ transactions|length }}건</div>
+{% endblock %}
